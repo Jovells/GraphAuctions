@@ -21,6 +21,8 @@ Welcome to the Dauctions! This decentralized application (DApp) is designed to p
 
 The core functionality of this DApp is powered by Ethereum smart contracts. The smart contracts are deployed on the Ethereum blockchain and are responsible for managing auctions, bids, and escrow. You can find the smart contract code in the `contracts/` directory.
 
+https://docs.google.com/presentation/d/1jW9E35lPPcsXYpgqC8xFGVPpZX-bWfH0Ot5o3MQ7f-k/edit#slide=id.p5
+
 
 
 # Usage
