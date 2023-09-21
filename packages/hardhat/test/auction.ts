@@ -33,7 +33,7 @@ const FUTURE_DATE = Math.floor(new Date(Date.now() + 7 * 24 * 60 * 60).getTime()
     
     const Auction = await ethers.getContractFactory("Auction");
     auction = (await Auction.deploy()) as Auction;
-    const tx = await dnft.connect(seller).mint(auction.address);
+    const tx = await dnft.connect(seller).mint(auction.address, 'google.com');
     const receipt = await tx.wait();
     tokenId = receipt.events?.find(e=>e.event ==="minted")?.args?.[0];
   });

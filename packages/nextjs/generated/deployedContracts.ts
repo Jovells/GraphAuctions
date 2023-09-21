@@ -629,6 +629,11 @@ const contracts = {
                   name: "operator",
                   type: "address",
                 },
+                {
+                  internalType: "string",
+                  name: "tokenUri",
+                  type: "string",
+                },
               ],
               name: "mint",
               outputs: [],
