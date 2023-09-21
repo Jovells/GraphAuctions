@@ -31,6 +31,8 @@ export const PaginationButton = ({ currentPage, totalItems, setCurrentPage }: Pa
         className={`btn btn-sm ${nextButtonClass}`}
         disabled={isNextButtonDisabled}
         onClick={() => setCurrentPage(currentPage + 1)}
+
+        
       >
         <ArrowRightIcon className="h-4 w-4" />
       </button>

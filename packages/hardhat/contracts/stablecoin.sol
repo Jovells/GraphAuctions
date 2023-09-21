@@ -11,6 +11,6 @@ contract Stablecoin is ERC20 {
     //constructor
     constructor() ERC20("USDT", "USDT") {
         //mint 1000 tokens to the deployer
-        _mint(msg.sender, 1000 * 10**decimals());
+        _mint(msg.sender, 10000 * 10**decimals());
     }
 }

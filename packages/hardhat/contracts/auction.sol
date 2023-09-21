@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./nft.sol";
@@ -22,6 +23,8 @@ contract Auction is Ownable {
         address highestBidder;
         uint256 highestBid;
         uint256 tokenId;
+        address tokenContract;
+        bool withdrawn;
     }
 
     uint256 public auctionCount;
@@ -63,12 +66,6 @@ contract Auction is Ownable {
     );
 
 
-    DauctionNft public dnft;
-
-    constructor(address _dnftAddress)  {
-        dnft = DauctionNft(_dnftAddress);
-    }
-
     modifier onlyAuctionOpen(uint256 _auctionId) {
         require(auctions[_auctionId].startTime <= block.timestamp, "Auction is not open");
         _;
@@ -91,8 +88,9 @@ contract Auction is Ownable {
         require(_endTime > block.timestamp, "End time must be in the future");
         require(_endTime > _startTime, "End time must be after start time");
         require(_startPrice > 0, "Start price must be greater than 0");
-        
-        require(ERC721(_tokenContract).isApprovedForAll(msg.sender, address(this)), "Contract not approved to transfer NFT");
+
+
+        require( IERC721(_tokenContract).isApprovedForAll(msg.sender, address(this)), "Contract not approved to transfer NFT");
 
         auctions[++auctionCount] = AuctionInfo({
             seller: msg.sender,
@@ -102,7 +100,9 @@ contract Auction is Ownable {
             highestBidder: address(0),
             highestBid: 0,
             startPrice: _startPrice,
-            tokenId: _tokenId
+            tokenId: _tokenId,
+            tokenContract: _tokenContract,
+            withdrawn: false
         });
 
         emit AuctionCreated(auctionCount, msg.sender, _stablecoin, _tokenId, _tokenContract, _endTime, _startTime, _startPrice);
@@ -151,16 +151,16 @@ contract Auction is Ownable {
         require(auction.highestBidder == msg.sender, "Only the highest bidder can claim");
 
         // Transfer the NFT to the highest bidder
-        dnft.safeTransferFrom(auction.seller, auction.highestBidder, _auctionId);
+        IERC721(auction.tokenContract).safeTransferFrom(auction.seller, auction.highestBidder, _auctionId);
 
         emit Claimed(_auctionId, msg.sender, auction.highestBid);
     }
 
     function withdraw(uint256 _auctionId) external onlyAuctionEnded(_auctionId) {
         AuctionInfo storage auction = auctions[_auctionId];
-        uint256 amount = auction.highestBid;
-        require(amount > 0, "No funds to withdraw");
-        auction.stablecoin.transfer(msg.sender, amount);
-        emit Withdrawal(_auctionId, msg.sender, amount);
+        require(!auction.withdrawn, "Funds already withdrawn");
+        auction.stablecoin.transfer(msg.sender, auction.highestBid);
+        auction.withdrawn = true;
+        emit Withdrawal(_auctionId, msg.sender, auction.highestBid);
     }
 }

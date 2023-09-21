@@ -8,17 +8,6 @@ const contracts = {
           address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
           abi: [
             {
-              inputs: [
-                {
-                  internalType: "address",
-                  name: "_dnftAddress",
-                  type: "address",
-                },
-              ],
-              stateMutability: "nonpayable",
-              type: "constructor",
-            },
-            {
               anonymous: false,
               inputs: [
                 {
@@ -44,6 +33,12 @@ const contracts = {
                   internalType: "uint256",
                   name: "tokenId",
                   type: "uint256",
+                },
+                {
+                  indexed: false,
+                  internalType: "address",
+                  name: "tokenContract",
+                  type: "address",
                 },
                 {
                   indexed: false,
@@ -196,12 +191,12 @@ const contracts = {
                 },
                 {
                   internalType: "uint256",
-                  name: "endTime",
+                  name: "startTime",
                   type: "uint256",
                 },
                 {
                   internalType: "uint256",
-                  name: "startTime",
+                  name: "endTime",
                   type: "uint256",
                 },
                 {
@@ -220,14 +215,19 @@ const contracts = {
                   type: "uint256",
                 },
                 {
-                  internalType: "bool",
-                  name: "auctionEnded",
-                  type: "bool",
-                },
-                {
                   internalType: "uint256",
                   name: "tokenId",
                   type: "uint256",
+                },
+                {
+                  internalType: "address",
+                  name: "tokenContract",
+                  type: "address",
+                },
+                {
+                  internalType: "bool",
+                  name: "withdrawn",
+                  type: "bool",
                 },
               ],
               stateMutability: "view",
@@ -255,12 +255,12 @@ const contracts = {
                 },
                 {
                   internalType: "uint256",
-                  name: "_endTime",
+                  name: "_startTime",
                   type: "uint256",
                 },
                 {
                   internalType: "uint256",
-                  name: "_startTime",
+                  name: "_endTime",
                   type: "uint256",
                 },
                 {
@@ -268,20 +268,94 @@ const contracts = {
                   name: "_startPrice",
                   type: "uint256",
                 },
+                {
+                  internalType: "uint256",
+                  name: "_tokenId",
+                  type: "uint256",
+                },
+                {
+                  internalType: "address",
+                  name: "_tokenContract",
+                  type: "address",
+                },
               ],
               name: "createAuction",
-              outputs: [],
+              outputs: [
+                {
+                  internalType: "uint256",
+                  name: "",
+                  type: "uint256",
+                },
+              ],
               stateMutability: "nonpayable",
               type: "function",
             },
             {
-              inputs: [],
-              name: "dnft",
+              inputs: [
+                {
+                  internalType: "uint256",
+                  name: "_auctionId",
+                  type: "uint256",
+                },
+              ],
+              name: "getAuction",
               outputs: [
                 {
-                  internalType: "contract DauctionNft",
+                  components: [
+                    {
+                      internalType: "address",
+                      name: "seller",
+                      type: "address",
+                    },
+                    {
+                      internalType: "contract IERC20",
+                      name: "stablecoin",
+                      type: "address",
+                    },
+                    {
+                      internalType: "uint256",
+                      name: "startTime",
+                      type: "uint256",
+                    },
+                    {
+                      internalType: "uint256",
+                      name: "endTime",
+                      type: "uint256",
+                    },
+                    {
+                      internalType: "uint256",
+                      name: "startPrice",
+                      type: "uint256",
+                    },
+                    {
+                      internalType: "address",
+                      name: "highestBidder",
+                      type: "address",
+                    },
+                    {
+                      internalType: "uint256",
+                      name: "highestBid",
+                      type: "uint256",
+                    },
+                    {
+                      internalType: "uint256",
+                      name: "tokenId",
+                      type: "uint256",
+                    },
+                    {
+                      internalType: "address",
+                      name: "tokenContract",
+                      type: "address",
+                    },
+                    {
+                      internalType: "bool",
+                      name: "withdrawn",
+                      type: "bool",
+                    },
+                  ],
+                  internalType: "struct Auction.AuctionInfo",
                   name: "",
-                  type: "address",
+                  type: "tuple",
                 },
               ],
               stateMutability: "view",
@@ -456,6 +530,19 @@ const contracts = {
               type: "event",
             },
             {
+              anonymous: false,
+              inputs: [
+                {
+                  indexed: true,
+                  internalType: "uint256",
+                  name: "tokenId",
+                  type: "uint256",
+                },
+              ],
+              name: "minted",
+              type: "event",
+            },
+            {
               inputs: [
                 {
                   internalType: "address",
@@ -539,18 +626,12 @@ const contracts = {
               inputs: [
                 {
                   internalType: "address",
-                  name: "to",
+                  name: "operator",
                   type: "address",
                 },
               ],
               name: "mint",
-              outputs: [
-                {
-                  internalType: "uint256",
-                  name: "",
-                  type: "uint256",
-                },
-              ],
+              outputs: [],
               stateMutability: "nonpayable",
               type: "function",
             },
