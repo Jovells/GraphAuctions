@@ -21,9 +21,7 @@ const deployAuctions: DeployFunction = async function (hre: HardhatRuntimeEnviro
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
-
-  // Get the deployed contract
-  await deploy("Auction", {
+  await deploy("Stablecoin", {
     from: deployer,
     // Contract constructor arguments
     args: [],
@@ -32,25 +30,25 @@ const deployAuctions: DeployFunction = async function (hre: HardhatRuntimeEnviro
     // automatically mining the contract deployment transaction. There is no effect on live networks.
     autoMine: true,
   });
-  const Auction = await hre.ethers.getContract("Auction", deployer);
 
-  console.log("Auction address", Auction.address);
+  // Get the deployed contract
+  const auctionUSDT = await hre.ethers.getContract("DauctionNft", deployer);
 
-  await deploy("DauctionNft", {
-    from: deployer,
-    // Contract constructor arguments
-    args: [Auction.address],
-    log: true,
-    // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
-    // automatically mining the contract deployment transaction. There is no effect on live networks.
-    autoMine: true,
-  });
+  console.log("ausdt address", auctionUSDT.address);
 
-
+  // await deploy("Auction", {
+  //   from: deployer,
+  //   // Contract constructor arguments
+  //   args: [],
+  //   log: true,
+  //   // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
+  //   // automatically mining the contract deployment transaction. There is no effect on live networks.
+  //   autoMine: true,
+  // });
 };
 
 export default deployAuctions;
 
 // Tags are useful if you have multiple deploy files and only want to run one of them.
 // e.g. yarn deploy --tags YourContract
-deployAuctions.tags = ["auctions"];
+deployAuctions.tags = ["ausdt"];

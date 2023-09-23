@@ -48,10 +48,12 @@ export const useScaffoldContractWrite = <
   const sendContractWriteTx = async ({
     args: newArgs,
     value: newValue,
+    onBlockConfirmation: newOnBlockConfirmation,
     ...otherConfig
   }: {
     args?: UseScaffoldWriteConfig<TContractName, TFunctionName>["args"];
     value?: UseScaffoldWriteConfig<TContractName, TFunctionName>["value"];
+    onBlockConfirmation?: UseScaffoldWriteConfig<TContractName, TFunctionName>["onBlockConfirmation"];
   } & UpdatedArgs = {}) => {
     if (!deployedContractData) {
       notification.error("Target Contract is not deployed, did you forget to run `yarn deploy`?");
@@ -76,7 +78,7 @@ export const useScaffoldContractWrite = <
               value: newValue ? parseEther(newValue) : value && parseEther(value),
               ...otherConfig,
             }),
-          { onBlockConfirmation, blockConfirmations },
+          { onBlockConfirmation : newOnBlockConfirmation, blockConfirmations },
         );
       } catch (e: any) {
         const message = getParsedError(e);

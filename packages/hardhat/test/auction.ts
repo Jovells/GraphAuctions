@@ -21,21 +21,22 @@ const FUTURE_DATE = Math.floor(new Date(Date.now() + 7 * 24 * 60 * 60).getTime()
 
     // owner._checkProvider();
 
-    const DNFT = await ethers.getContractFactory("DauctionNft");
-    dnft = (await DNFT.deploy()) as DauctionNft;
-
+    
     
     const Stablecoin = await ethers.getContractFactory("Stablecoin");
     stablecoin = (await Stablecoin.deploy()) as Stablecoin;
-
+    
     stablecoin.connect(owner).transfer(bidder1.address, 100000);
     stablecoin.connect(owner).transfer(bidder2.address, 100000);
     
     const Auction = await ethers.getContractFactory("Auction");
     auction = (await Auction.deploy()) as Auction;
-    const tx = await dnft.connect(seller).mint(auction.address, 'google.com');
-    const receipt = await tx.wait();
-    tokenId = receipt.events?.find(e=>e.event ==="minted")?.args?.[0];
+    
+    const DNFT = await ethers.getContractFactory("DauctionNft");
+    dnft = (await DNFT.deploy(auction.address)) as DauctionNft;
+
+    await auction.connect(owner).setDnftAddress(dnft.address);
+  
   });
 
   describe("createAuction", function () {
@@ -45,9 +46,11 @@ const FUTURE_DATE = Math.floor(new Date(Date.now() + 7 * 24 * 60 * 60).getTime()
       
         
       const tx = await auction.connect(seller)
-        .createAuction(stablecoin.address, startTime, FUTURE_DATE, 10, tokenId, dnft.address, { gasLimit: 3e7 });
+        .createAuction(stablecoin.address, startTime, FUTURE_DATE, 10, 'ipgg.com', { gasLimit: 3e7 });
     const receipt = await tx.wait();
     const auctionId = receipt.events?.find(e=>e.event === 'AuctionCreated')?.args?.[0];
+    tokenId = receipt.events?.find(e=>e.event === 'AuctionCreated')?.args?.[0];
+
 
 
 
@@ -62,6 +65,7 @@ const FUTURE_DATE = Math.floor(new Date(Date.now() + 7 * 24 * 60 * 60).getTime()
         BigNumber.from(0),
         tokenId,
         dnft.address,
+        false,
         false
       ]);
     });
@@ -75,7 +79,7 @@ const FUTURE_DATE = Math.floor(new Date(Date.now() + 7 * 24 * 60 * 60).getTime()
     beforeEach(async function () {
         const startTime = Math.floor(Date.now() / 1000);
         const tx = await auction.connect(seller)
-        .createAuction(stablecoin.address, startTime, FUTURE_DATE, 10, tokenId, dnft.address, { gasLimit: 3e7 });
+        .createAuction(stablecoin.address, startTime, FUTURE_DATE, 10, "ghh", { gasLimit: 3e7 });
     const receipt = await tx.wait();
      auctionId = receipt.events?.find(e=>e.event === 'AuctionCreated')?.args?.[0];
 
@@ -146,7 +150,7 @@ const FUTURE_DATE = Math.floor(new Date(Date.now() + 7 * 24 * 60 * 60).getTime()
     await ethers.provider.send("evm_setNextBlockTimestamp", [endTime+1000]);
    
       const tx = await auction.connect(seller)
-      .createAuction(stablecoin.address, startTime, endTime+1500, 10, tokenId, dnft.address, { gasLimit: 3e7 });
+      .createAuction(stablecoin.address, startTime, endTime+1500, 10, 'ghggh', { gasLimit: 3e7 });
         const receipt = await tx.wait();
         auctionId = receipt.events?.find(e=>e.event === 'AuctionCreated')?.args?.[0];
 
@@ -200,3 +204,5 @@ const FUTURE_DATE = Math.floor(new Date(Date.now() + 7 * 24 * 60 * 60).getTime()
     });
   });
 });
+
+

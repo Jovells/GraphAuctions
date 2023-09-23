@@ -23,7 +23,7 @@ export const useDeployedContractInfo = <TContractName extends ContractName>(cont
         return;
       }
       const code = await publicClient.getBytecode({
-        address: deployedContract.address,
+        address : deployedContract.address,
       });
 
       if (!isMounted()) {
@@ -39,8 +39,10 @@ export const useDeployedContractInfo = <TContractName extends ContractName>(cont
 
     checkContractDeployment();
   }, [isMounted, contractName, deployedContract, publicClient]);
-
+  deployedContract
   return {
+    
+    
     data: status === ContractCodeStatus.DEPLOYED ? deployedContract : undefined,
     isLoading: status === ContractCodeStatus.LOADING,
   };

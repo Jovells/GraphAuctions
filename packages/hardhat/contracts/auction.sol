@@ -11,8 +11,13 @@ import "./nft.sol";
 
 contract Auction is Ownable {
     using SafeMath for uint256;
+    address public dnftAddress; 
 
-    
+    DauctionNft public df;
+
+    function setDnftAddress(address _dnftAddress) external onlyOwner {
+        dnftAddress = _dnftAddress;
+    }    
 
     struct AuctionInfo {
         address seller;
@@ -25,6 +30,7 @@ contract Auction is Ownable {
         uint256 tokenId;
         address tokenContract;
         bool withdrawn;
+        bool claimed;
     }
 
     uint256 public auctionCount;
@@ -32,6 +38,18 @@ contract Auction is Ownable {
 
     function getAuction(uint256 _auctionId) external view returns (AuctionInfo memory) {
         return auctions[_auctionId];
+    }
+
+    function getRecentAuctions(uint256 _count) external view returns (AuctionInfo[] memory) {
+        if (_count > auctionCount) {
+            _count = auctionCount;
+        }
+        AuctionInfo[] memory _auctions = new AuctionInfo[](_count);
+        //get the most recent auctions, latest first
+        for (uint256 i = 0; i < _count; i++) {
+            _auctions[i] = auctions[auctionCount - i];
+        }
+        return _auctions;
     }
  
 
@@ -42,9 +60,11 @@ contract Auction is Ownable {
         address indexed stablecoin,
         uint256 tokenId,
         address tokenContract,
+        string tokenURI,
         uint256 endTime,
         uint256 startTime,
-        uint256 startPrice
+        uint256 startPrice,
+        uint256 timestamp
     );
 
     event Withdrawal(
@@ -62,7 +82,9 @@ contract Auction is Ownable {
     event BidPlaced(
         uint256 indexed auctionId,
         address indexed bidder,
-        uint256 amount
+        uint256 amount,
+        uint256 timestamp
+
     );
 
 
@@ -81,8 +103,7 @@ contract Auction is Ownable {
         uint256 _startTime,
         uint256 _endTime,
         uint256 _startPrice,
-        uint256 _tokenId,
-        address _tokenContract
+        string memory tokenURI
     ) external returns (uint256) {
 
         require(_endTime > block.timestamp, "End time must be in the future");
@@ -90,8 +111,14 @@ contract Auction is Ownable {
         require(_startPrice > 0, "Start price must be greater than 0");
 
 
-        require( IERC721(_tokenContract).isApprovedForAll(msg.sender, address(this)), "Contract not approved to transfer NFT");
+        // require( IERC721(_tokenContract).isApprovedForAll(msg.sender, address(this)), "Contract not approved to transfer NFT");
 
+
+        df = DauctionNft(dnftAddress);
+        
+        uint256 _tokenId = df.mint(tokenURI);
+
+        
         auctions[++auctionCount] = AuctionInfo({
             seller: msg.sender,
             stablecoin: IERC20(_stablecoin),
@@ -101,11 +128,13 @@ contract Auction is Ownable {
             highestBid: 0,
             startPrice: _startPrice,
             tokenId: _tokenId,
-            tokenContract: _tokenContract,
-            withdrawn: false
+            tokenContract: dnftAddress,
+            withdrawn: false,
+            claimed: false
         });
 
-        emit AuctionCreated(auctionCount, msg.sender, _stablecoin, _tokenId, _tokenContract, _endTime, _startTime, _startPrice);
+
+        emit AuctionCreated(auctionCount, msg.sender, _stablecoin, _tokenId, dnftAddress, tokenURI, _endTime, _startTime,  _startPrice, block.timestamp);
         return auctionCount;
 
     }
@@ -131,7 +160,7 @@ contract Auction is Ownable {
         auction.highestBidder = msg.sender;
         auction.highestBid = _amount;
 
-        emit BidPlaced(_auctionId, msg.sender, _amount);
+        emit BidPlaced(_auctionId, msg.sender, _amount, block.timestamp);
     }
 
     // function endAuction(uint256 _auctionId) public onlyAuctionOpen(_auctionId) {
@@ -151,8 +180,8 @@ contract Auction is Ownable {
         require(auction.highestBidder == msg.sender, "Only the highest bidder can claim");
 
         // Transfer the NFT to the highest bidder
-        IERC721(auction.tokenContract).safeTransferFrom(auction.seller, auction.highestBidder, _auctionId);
-
+        IERC721(auction.tokenContract).safeTransferFrom(address(this), auction.highestBidder, auction.tokenId);
+        auction.claimed = true;
         emit Claimed(_auctionId, msg.sender, auction.highestBid);
     }
 
