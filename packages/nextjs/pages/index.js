@@ -2,10 +2,11 @@
 import React, { useEffect, useState } from "react";
 import { Box, Container, Typography, Button, InputBase } from "@mui/material";
 import Grid from '@mui/material/Unstable_Grid2';
-import AuctionListing from "../../components/dauctions/auctionListing";
+import AuctionListing from "../components/dauctions/auctionListing";
 import SearchIcon from '@mui/icons-material/Search';
 import Link from "next/link";
-import { GraphURL } from "../../utils/auctions";
+import { GraphURL } from "../utils/auctions";
+import { MetaHeader } from "./../components/MetaHeader"
 
 
 const Home = () => {
@@ -54,12 +55,14 @@ const Home = () => {
 
   },[])
   return (
-    <Box >
+    <>
+      <MetaHeader />
+
       {/* <BackgroundImage
         src="https://i.vecteezy.com/vectors/abstract-backdrop-with-monochrome-wave-gradient-lines-on-white-background-modern-technology-background-wave-design-vector-illustration-23426480.jpg"
         alt="Abstract background image"
       /> */}
-      <Container maxWidth="lg">
+      
         <Grid container spacing={3} alignItems="center">
           <Grid xs={12} sm={6}>
             <Typography variant="h1" sx={{ fontSize: 50, mt: 10, fontWeight: 700 }}>
@@ -68,7 +71,7 @@ const Home = () => {
             <Typography variant="body1" sx={{ fontSize: 20, mt: 2, fontWeight: 400 }}>
               At Dauctions, we have harnessed the power of cutting-edge blockchain technology to revolutionize the way auctions are conducted.
             </Typography>
-            <Button variant="contained" LinkComponent={Link} href="dauctions/createAuction" color="primary" size="large" sx={{ mt:2, backgroundColor: 'black' }}>
+            <Button variant="contained" LinkComponent={Link} href="createAuction" color="primary" size="large" sx={{ mt:2, backgroundColor: 'black' }}>
               Start An auction
             </Button>
           </Grid>
@@ -79,7 +82,7 @@ const Home = () => {
           </Typography>
           <InputBase
       sx={{
-        bgcolor: 'lightgrey',
+        bgcolor: 'grey.200',
         borderRadius: 2,
         p: 1,
         width: '100%',
@@ -92,8 +95,7 @@ const Home = () => {
           <AuctionListing first={index === 0} key={auction.auctionId} auction={auction}  />
     )}
         </Grid>
-      </Container>
-    </Box>
+    </>
   );
 };
 

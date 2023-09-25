@@ -26,7 +26,7 @@ const deployAuctions: DeployFunction = async function (hre: HardhatRuntimeEnviro
   await deploy("Auction", {
     from: deployer,
     // Contract constructor arguments
-    args: [],
+    args: ['0x22e5768fD06A7FB86fbB928Ca14e9D395f7C5363'],
     log: true,
     // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
     // automatically mining the contract deployment transaction. There is no effect on live networks.
@@ -36,15 +36,15 @@ const deployAuctions: DeployFunction = async function (hre: HardhatRuntimeEnviro
 
   console.log("Auction address", Auction.address);
 
-  await deploy("DauctionNft", {
-    from: deployer,
-    // Contract constructor arguments
-    args: [Auction.address],
-    log: true,
-    // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
-    // automatically mining the contract deployment transaction. There is no effect on live networks.
-    autoMine: true,
-  });
+  // await deploy("DauctionNft", {
+  //   from: deployer,
+  //   // Contract constructor arguments
+  //   args: [Auction.address],
+  //   log: true,
+  //   // autoMine: can be passed to the deploy function to make the deployment process faster on local networks by
+  //   // automatically mining the contract deployment transaction. There is no effect on live networks.
+  //   autoMine: true,
+  // });
 
 
 };
