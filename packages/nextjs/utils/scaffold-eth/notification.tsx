@@ -8,7 +8,7 @@ import {
   InformationCircleIcon,
 } from "@heroicons/react/24/solid";
 import { Spinner } from "~~/components/Spinner";
-import { makeStyles, Paper, Typography, IconButton } from '@mui/material';
+import { makeStyles, Paper, Typography, IconButton, SvgIcon, Box } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
 type TPositions = "top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right";
@@ -98,10 +98,10 @@ export const notification = {
     return toast.success( content as any, options );
   },
   info: (content: React.ReactNode, options?: NotificationOptions) => {
-    return toast( content as any,{icon:<InformationCircleIcon/>, ...options} );
+    return toast( content as any,{icon: <Box width={20} height={20}><InformationCircleIcon /></Box>, ...options} );
   },
   warning: (content: React.ReactNode, options?: NotificationOptions) => {
-    return toast( content as any, {icon:<ExclamationTriangleIcon/>,   ...options} );
+    return toast( content as any, {icon: <Box width={20} height={20}> <ExclamationTriangleIcon fontSize={'20px'}/></Box>,   ...options} );
   },
   error: (content: React.ReactNode, options?: NotificationOptions) => {
     return toast.error( content as any, options );

@@ -93,5 +93,5 @@ export const stablecoins = [
   { name: 'AUSDC', address: '0x22e5768fD06A7FB86fbB928Ca14e9D395f7C5363' },
 ];
 
-export const GraphURL = 'https://api.studio.thegraph.com/query/53468/auctionlatest/version/latest';
+export const GraphURL = 'https://api.studio.thegraph.com/query/53468/auctionwithtime/version/latest';
 

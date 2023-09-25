@@ -11,6 +11,7 @@ import { stablecoins } from "../../utils/auctions";
 import toast from "react-hot-toast";
 import { useAccountModal, useConnectModal } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
+import {notification} from "../../utils/scaffold-eth"
 
 
 
@@ -65,53 +66,31 @@ const CreateAuction = () => {
     data.endTime = Time.getTimestampInSeconds(data.endTime);
     data.preventSniping = data.preventSniping === 'on' ? true : false;
     let tokenURI = "ipfs://bafyreiecwvlht6ibr75mwymyeqr6rdpssielikblwi46tb4nhkjdbpedha/metadata.json";
-    if (process.env.NODE_ENV === "production"){
-    // if (true){
-      toast.promise(
-        storeNFT(image, data),
-        {
-          loading: 'Uploading Auction Data to IPFS',
-          success: (d) => {tokenURI = d.url; return `Successfully Uploaded to ${d.url}`},
-          error: (err) => `This just happened: ${err.toString()}`,
-        },
-        {
-          style: {
-            minWidth: '250px',
-          },
-          success: {
-            duration: 5000,
-            icon: '🔥',
-          },
-        }
-      );
+    // if (process.env.NODE_ENV === "production"){
+    if (true){
+      const toastId = toast.loading("Uploaing to IPFS");
 
+      await storeNFT(image, data).then((d) => {tokenURI = d.url;
+        
+        
+            toast.loading("Upload Successful. Minting NFT and Creating Aution...", { id: toastId});
+
+            auction.writeAsync({ args: [data.currency, data.startTime, data.endTime, data.startingPrice, tokenURI, data.preventSniping], 
+              onBlockConfirmation: (txnReceipt) => {
+              toast.success("Auction Created Successfully", {id: toastId});
+              const auctionData = getTxnEventData(txnReceipt, 'AuctionCreated', auction.data.abi);
+              console.log('a', auctionData);
+              auctionData && router.push(`/auctionDetails/${auctionData.auctionId}`);
+              }
+              }) 
+        
+            .catch((err) => toast.error(`This just happened: ${err.toString()}` , {id: toastId}));
+        })
     }
 
-    const mintAndStore =     auction.writeAsync({ args: [data.currency, data.startTime, data.endTime, data.startingPrice, tokenURI, data.preventSniping], 
-      onBlockConfirmation: (txnReceipt) => {
-      const auctionData = getTxnEventData(txnReceipt, 'AuctionCreated', auction.data.abi);
-      console.log('a', auctionData);
-      auctionData && router.push(`/auctionDetails/${auctionData.auctionId}`);
-      }
-      }) 
 
-    toast.promise(
-      mintAndStore,
-      {
-        loading: 'Minting Nft and Creating Transaction',
-        success: () => { return `Transaction Successful. Waiting for Block confirmation`},
-        error: (err) => `This just happened: ${err.toString()}`,
-      },
-      {
-        style: {
-          minWidth: '250px',
-        },
-        success: {
-          duration: 5000,
-          icon: '🔥',
-        },
-      }
-    );
+
+
 
 
   }
