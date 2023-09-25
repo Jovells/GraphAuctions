@@ -9,7 +9,7 @@ export class Time {
           day: 'numeric',
           hour: 'numeric',
           minute: 'numeric',
-          timeZoneName: 'short',
+          // timeZoneName: 'short',
         };
         const formattedDate = date.toLocaleDateString('en-US', options);
         // const suffix = this.getOrdinalSuffix(date.getDate());

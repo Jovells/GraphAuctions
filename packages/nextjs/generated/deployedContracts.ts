@@ -2149,8 +2149,19 @@ const contracts = {
       name: "polygonMumbai",
       contracts: {
         Auction: {
-          address: "0x4433f7230D0AdFB0De7932f3435167E5E379D08F",
+          address: "0xf8e059791647851A0Ff07b535399436Ee0683aC4",
           abi: [
+            {
+              inputs: [
+                {
+                  internalType: "address",
+                  name: "_dnftAddress",
+                  type: "address",
+                },
+              ],
+              stateMutability: "nonpayable",
+              type: "constructor",
+            },
             {
               anonymous: false,
               inputs: [
@@ -2210,6 +2221,12 @@ const contracts = {
                 },
                 {
                   indexed: false,
+                  internalType: "bool",
+                  name: "preventSniping",
+                  type: "bool",
+                },
+                {
+                  indexed: false,
                   internalType: "uint256",
                   name: "timestamp",
                   type: "uint256",
@@ -2243,6 +2260,12 @@ const contracts = {
                   indexed: false,
                   internalType: "uint256",
                   name: "timestamp",
+                  type: "uint256",
+                },
+                {
+                  indexed: false,
+                  internalType: "uint256",
+                  name: "newEndTime",
                   type: "uint256",
                 },
               ],
@@ -2396,6 +2419,11 @@ const contracts = {
                   name: "claimed",
                   type: "bool",
                 },
+                {
+                  internalType: "bool",
+                  name: "preventSniping",
+                  type: "bool",
+                },
               ],
               stateMutability: "view",
               type: "function",
@@ -2440,6 +2468,11 @@ const contracts = {
                   name: "tokenURI",
                   type: "string",
                 },
+                {
+                  internalType: "bool",
+                  name: "_preventSniping",
+                  type: "bool",
+                },
               ],
               name: "createAuction",
               outputs: [
@@ -2450,19 +2483,6 @@ const contracts = {
                 },
               ],
               stateMutability: "nonpayable",
-              type: "function",
-            },
-            {
-              inputs: [],
-              name: "df",
-              outputs: [
-                {
-                  internalType: "contract DauctionNft",
-                  name: "",
-                  type: "address",
-                },
-              ],
-              stateMutability: "view",
               type: "function",
             },
             {
@@ -2545,6 +2565,11 @@ const contracts = {
                       name: "claimed",
                       type: "bool",
                     },
+                    {
+                      internalType: "bool",
+                      name: "preventSniping",
+                      type: "bool",
+                    },
                   ],
                   internalType: "struct Auction.AuctionInfo",
                   name: "",
@@ -2619,6 +2644,11 @@ const contracts = {
                     {
                       internalType: "bool",
                       name: "claimed",
+                      type: "bool",
+                    },
+                    {
+                      internalType: "bool",
+                      name: "preventSniping",
                       type: "bool",
                     },
                   ],

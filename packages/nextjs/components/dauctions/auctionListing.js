@@ -76,7 +76,7 @@ const AuctionListing = ({ first = true, auction = {name: 'Honda Civic', seller: 
     </Box>
     </Grid> }
 
-    <Link style={{ textDecoration: 'none', color: 'inherit' }} href={`/dauctions/auctionDetails/${newAuction.auctionId}`}>
+    <Link style={{ textDecoration: 'none', color: 'inherit' }} href={`/auctionDetails/${newAuction.auctionId}`}>
     <Grid py={2} px={4} t   borderRadius={2}  component={ListItemButton} container alignItems={'center'}   width={1} >
 
     <Stack width={0.3}   direction={'row'} alignItems={'center'} >
