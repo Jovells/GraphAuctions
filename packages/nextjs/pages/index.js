@@ -65,7 +65,7 @@ const Home = () => {
       
         <Grid container spacing={3} alignItems="center">
           <Grid xs={12} sm={6}>
-            <Typography variant="h1" sx={{ fontSize: 50, mt: 10, fontWeight: 700 }}>
+            <Typography fontFamily={'Titillium Web'} variant="h1" sx={{ fontSize: 50, mt: 10, fontWeight: 700 }}>
               Transparent Auctions Powered by Blockchain Technology
             </Typography>
             <Typography variant="body1" sx={{ fontSize: 20, mt: 2, fontWeight: 400 }}>

@@ -68,12 +68,12 @@ const CreateAuction = () => {
     let tokenURI = "ipfs://bafyreiecwvlht6ibr75mwymyeqr6rdpssielikblwi46tb4nhkjdbpedha/metadata.json";
     // if (process.env.NODE_ENV === "production"){
     if (true){
-      const toastId = toast.loading("Uploaing to IPFS");
+      const toastId = toast.loading("Uploading to IPFS");
 
       await storeNFT(image, data).then((d) => {tokenURI = d.url;
         
         
-            toast.loading("Upload Successful. Minting NFT and Creating Aution...", { id: toastId});
+            toast.loading("Upload Successful. Minting NFT and Creating Auction...", { id: toastId});
 
             auction.writeAsync({ args: [data.currency, data.startTime, data.endTime, data.startingPrice, tokenURI, data.preventSniping], 
               onBlockConfirmation: (txnReceipt) => {
@@ -82,7 +82,7 @@ const CreateAuction = () => {
               console.log('a', auctionData);
               auctionData && router.push(`/auctionDetails/${auctionData.auctionId}`);
               }
-              }) 
+              }).then(()=>toast.dismiss(toastId)) 
         
             .catch((err) => toast.error(`This just happened: ${err.toString()}` , {id: toastId}));
         })
@@ -105,7 +105,7 @@ const CreateAuction = () => {
 
   return (
     <Grid direction={'column'} component={'form'} onSubmit={handlemint}  mt={5} container maxWidth={'772px'}>
-      <Typography variant="h3" mb={3} >Create Auction</Typography>
+      <Typography variant="h4" fontWeight={'500'} mb={3} >Auction Details</Typography>
       <Box sx={{
         width: '100%',
         height: '300px',

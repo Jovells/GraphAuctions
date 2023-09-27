@@ -1,72 +1,21 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Box, Button, Chip, Container, Divider, Input, MenuItem, Select, Stack, TextField, TextareaAutosize, Tooltip, Typography } from "@mui/material";
-import Grid from "@mui/material/Unstable_Grid2";
 import InsertPhotoIcon from '@mui/icons-material/InsertPhoto';
-import EventListing from "../../components/dauctions/eventListing";
+import { Button, Chip, Divider, Stack, TextField, Typography } from "@mui/material";
+import Grid from "@mui/material/Unstable_Grid2";
+import { useChainModal, useConnectModal } from '@rainbow-me/rainbowkit';
 import { useRouter } from "next/router";
-import { useScaffoldContractRead } from "../../hooks/scaffold-eth/useScaffoldContractRead";
-import { useAccount, useWalletClient } from "wagmi";
-import { useScaffoldContractWrite } from "../../hooks/scaffold-eth/useScaffoldContractWrite";
-import { getTxnEventData, getTxnEventArg, Time } from "../../utils/auctions";
-import { convertIpfsUrl } from "../../utils/auctions";
-import { stablecoins } from "../../utils/auctions";
-import { useScaffoldContract } from "../../hooks/scaffold-eth/useScaffoldContract";
-import { GraphURL } from "../../utils/auctions/";
-import Address from "../../components/dauctions/address";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useChainModal, useConnectModal } from '@rainbow-me/rainbowkit'
+import { useAccount, useWalletClient } from "wagmi";
+import Address from "../../components/dauctions/address";
+import EventListing from "../../components/dauctions/eventListing";
+import { useScaffoldContract } from "../../hooks/scaffold-eth/useScaffoldContract";
+import { useScaffoldContractRead } from "../../hooks/scaffold-eth/useScaffoldContractRead";
+import { useScaffoldContractWrite } from "../../hooks/scaffold-eth/useScaffoldContractWrite";
+import { Time, convertIpfsUrl, getTxnEventData, stablecoins } from "../../utils/auctions";
+import { GraphURL } from "../../utils/auctions/";
 
-const d = {
-  dateCreated: Time.formatDate(1634198400),
-  name: 'Honda Civic',
-  auctioneer: { name: 'Ghana Ports', address: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174' },
-  startTime: Time.formatDate(1634298400),
-  endTime: Time.formatDate(1634298400),
-  highestBid: 5000,
-  highestBidder: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
-  externalLink: 'https://www.google.com',
-  decription: "Lorem ipsum bibendum. Sed vel nisl vel velit bibendum bibendum. Sed vel nisl vel velit bibendum bibendum.",
-  imageUrl: 'https://th.bing.com/th/id/OIP.b8TMej-xNjY_4Y_Hz-ETJQHaE8?pid=ImgDet&rs=1',
-  currency: stablecoins[0],
-};
+import LoadingComponent from "../../components/dauctions/LoadingComponent";
 
-// export async function getServerSideProps({ params }) {
-//   const auctionId = params.auctionId;
-
-//   const queryUrl = 'https://api.studio.thegraph.com/query/53468/auctiontest/version/latest';
-//   const query = `{
-//     auctionCreateds(where: {auctionId: ${auctionId}}) {
-//       id
-//       auctionId
-//       seller
-//       stablecoin
-//       blockNumber
-//       blockTimestamp
-//       endTime
-//       startPrice
-//       startTime
-//       tokenContract
-//       tokenId
-//       transactionHash
-//     }
-//   }`;
-
-//   const res = await fetch(queryUrl, {
-//     method: 'POST',
-//     headers: {
-//       'Content-Type': 'application/json',
-//       'Accept': 'application/json',
-//     },
-//     body: JSON.stringify({ query }),
-//   }).catch((error) => console.log(error));
-
-//   const data = await res.json()
-
-//   console.log(data.data.auctionCreateds)
-
-
-//   return { props: { auctionId, auction : data?.data?.auctionCreateds?.[0] || null } }
-// }
 
 function convertBigIntsToNumbers(obj) {
   if (typeof obj === 'bigint') {
@@ -194,7 +143,7 @@ function AuctionDetails() {
           body: JSON.stringify({ query }),
         }).catch((error) => console.log(error));
 
-        const data = await res.json()
+        const data = await res?.json()
         console.log('eventsFromgraph', data)
         setEvents(data?.data)
         return data
@@ -222,13 +171,17 @@ function AuctionDetails() {
 
       return toast.error('Bid must be higher than highest bid');
     }
+    const toastId = toast.loading("Seeking Approval For token Transfer");
     await stableCoin.writeAsync({
       functionName: 'approve',
       args: [auctionContract.address, parsedBid],
       onBlockConfirmation: (txnReceipt) => {
+        toast.success("Approval Successful", { id: toastId });
+        toast.loading("Placing Bid...", { id: toastId });
         bidder.writeAsync({
           args: [router.query.auctionId, parsedBid],
           onBlockConfirmation: (txnReceipt) => {
+            toast.success("Bid Placed Successfully", { id: toastId });
             const data = getTxnEventData(txnReceipt, 'BidPlaced', auctionContract.abi);
 
           }
@@ -237,6 +190,7 @@ function AuctionDetails() {
 
       }
     });
+    toast.dismiss();
 
   }
   async function handleWithdraw() {
@@ -262,7 +216,7 @@ function AuctionDetails() {
   const auctionEnded = auction.endTime < Date.now() / 1000;
   const claimed = auctionEnded && auction.claimed && isHighestBidder;
   const withDrawable = auctionEnded && !auction.withdrawn && isSeller;
-  const claimable = !claimed && isHighestBidder && auctionEnded;
+  const claimable = !claimed && isHighestBidder && auctionEnded && isHighestBidder;
   console.log({
     bidEnded: auctionEnded, claimable, claimed, withDrawable, hb: auction.highestBidder, c: (auction.highestBidder === (account?.address)), cd: (events?.claimeds[0]?.bidder),
     ac: (auction?.claimed),
@@ -272,7 +226,7 @@ function AuctionDetails() {
   const auctionStartedBidded = auctionStarted && auction.highestBid
   const timeDifference = Time.getTimeDifference(auctionStarted ? auction.endTime : auction.startTime)
   return (
-    auction &&
+    auction?.name ?
     <Grid mx={'auto'} columnGap={6} rowGap={3} pt={5} container >
       <Grid
         md={6}
@@ -295,7 +249,7 @@ function AuctionDetails() {
           <InsertPhotoIcon sx={{ fontSize: 30, color: 'grey.500' }} />
         )}
       </Grid>
-      <Grid maxHeight={'600px'} columnGap={2} container pr={1}
+      <Grid maxHeight={'600px'}  columnGap={2}  pr={1}
         sx={{
           '&::-webkit-scrollbar': {
             width: '0.4em',
@@ -311,10 +265,10 @@ function AuctionDetails() {
             // outline: '1px solid slategrey'
           }
         }}
-        overflow={'auto'} md={5} width={1}  >
+        overflow={'auto'} md={5}   >
 
-        <Grid width={1} mb={1}>
-          <Typography variant="h4" fontWeight={'bold'} >{auction.name}</Typography>
+        <Grid maxWidth={400} mb={1}>
+          <Typography overflow={'hidden'} textOverflow={'ellipsis'} variant="h4" fontWeight={'bold'} >{auction.name}</Typography>
           <Typography variant="caption" color={'text.disabled'} > Created on {Time.formatDate(auction.timestamp || auction.startTime)}</Typography>
         </Grid>
 
@@ -400,21 +354,21 @@ function AuctionDetails() {
             </Grid></>}
 
         </Grid>
-        <Grid sm={5} md={10} rowGap={1} pt={2}>
-          <Stack alignItems={"baseline"} direction={'row'} justifyContent={"space-between"} columnGap={2}>
+        <Grid container sm={5} md={10} rowGap={1} pt={2}>
+          <Stack width = {1} alignItems={"baseline"} direction={'row'} justifyContent={"space-between"} columnGap={2}>
             <Typography variant="caption" color={'text.disabled'} > Created By</Typography>
             <Address address={auction.seller} />
           </Stack>
 
-          <Stack alignItems={"baseline"} direction={'row'} justifyContent={"space-between"} columnGap={2}>
+          <Stack width = {1} alignItems={"baseline"} direction={'row'} justifyContent={"space-between"} columnGap={2}>
             <Typography variant="caption" color={'text.disabled'} > Start Time</Typography>
             <Typography  >{Time.formatDate(auction.startTime)}</Typography>
           </Stack>
-          <Stack alignItems={"baseline"} direction={'row'} justifyContent={"space-between"} columnGap={2}>
+          <Stack width = {1} alignItems={"baseline"} direction={'row'} justifyContent={"space-between"} columnGap={2}>
             <Typography variant="caption" color={'text.disabled'} > End Time</Typography>
             <Typography  >{Time.formatDate(auction.endTime)}</Typography>
           </Stack>
-          <Stack alignItems={"baseline"} direction={'row'} justifyContent={"space-between"} columnGap={2}>
+          <Stack width = {1} alignItems={"baseline"} direction={'row'} justifyContent={"space-between"} columnGap={2}>
             <Typography variant="caption" color={'text.disabled'} > External Link</Typography>
             <Typography
           variant="subtitle1"
@@ -427,7 +381,7 @@ function AuctionDetails() {
           {`${auction.externalLink?.slice(0, 30)}...`}
         </Typography>
           </Stack>
-          <Stack alignItems={"baseline"} direction={'row'} justifyContent={"space-between"} columnGap={2}>
+          <Stack width = {1} alignItems={"baseline"} direction={'row'} justifyContent={"space-between"} columnGap={2}>
             <Typography variant="caption" color={'text.disabled'} > Description</Typography>
             <Typography textAlign={'right'} textOverflow={'ellipsis'} pl={3} >{auction.description}</Typography>
           </Stack>
@@ -436,6 +390,7 @@ function AuctionDetails() {
       </Grid>
 
       <Grid width={1} md={11}>
+        {/* <a href='https://mumbai.polygonscan.com/address/0x22e5768fD06A7FB86fbB928Ca14e9D395f7C5363#writeContract'> Go to token Address </a> */}
         <Typography width={1} variant="h6" mt={6} mb={2} fontWeight={'bold'} >Bid History</Typography>
         {
           auction.highestBid ?
@@ -447,6 +402,8 @@ function AuctionDetails() {
       </Grid>
 
     </Grid>
+    :   <LoadingComponent/>
+
   );
 };
 

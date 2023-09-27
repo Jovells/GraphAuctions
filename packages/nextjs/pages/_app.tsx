@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { AppProps } from "next/app";
+import { Container } from "@mui/material";
 import { RainbowKitProvider, darkTheme, lightTheme } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
 import NextNProgress from "nextjs-progressbar";
@@ -12,7 +13,42 @@ import { useNativeCurrencyPrice } from "~~/hooks/scaffold-eth";
 import { useGlobalState } from "~~/services/store/store";
 import { wagmiConfig } from "~~/services/web3/wagmiConfig";
 import { appChains } from "~~/services/web3/wagmiConnectors";
-import { Container } from "@mui/material";
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import muiTheme from "./../utils/auctions/theme"
+
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#000000',
+    },
+  
+  },
+  typography: {
+    fontFamily: [
+      'Work Sans',
+      'BlinkMacSystemFont',
+      '"Segoe UI"',
+      'Roboto',
+      '"Helvetica Neue"',
+      'Arial',
+      'sans-serif',
+      '"Apple Color Emoji"',
+      '"Segoe UI Emoji"',
+      '"Segoe UI Symbol"',
+    ].join(','),
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          boxShadow: 'none',
+          borderRadius: 10,
+        },
+      },
+    },
+  },
+});
 
 const ScaffoldEthApp = ({ Component, pageProps }: AppProps) => {
   const price = useNativeCurrencyPrice();
@@ -32,24 +68,32 @@ const ScaffoldEthApp = ({ Component, pageProps }: AppProps) => {
   }, [isDarkMode]);
 
   return (
+    <ThemeProvider theme={theme}>
     <WagmiConfig config={wagmiConfig}>
       <NextNProgress />
       <RainbowKitProvider
         chains={appChains.chains}
         avatar={BlockieAvatar}
-        theme={isDarkTheme ? darkTheme() : lightTheme()
-        }
+        theme={isDarkTheme ? darkTheme() : lightTheme()}
       >
-        
-          <Header />
-          <Container maxWidth={'lg'}>
-            <Component {...pageProps} />
-          </Container>
-          {/* <Footer /> */}
-        
-        <Toaster />
+        <Header />
+        <Container maxWidth={"lg"}>
+          <Component {...pageProps} />
+        </Container>
+        {/* <Footer /> */}
+
+        <Toaster
+        toastOptions = {{
+          style :{
+            fontFamily: 'Titillium Web',
+            fontWeight: '600',
+          }
+          
+        }}
+        />
       </RainbowKitProvider>
     </WagmiConfig>
+    </ThemeProvider>
   );
 };
 
