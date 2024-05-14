@@ -1,6 +1,163 @@
-# Dauctions Readme
+# Main Tutorial
 
-## Overview
+## Tutorial: Querying a GraphQL API in React using fetch
+
+### Introduction
+In this tutorial, we'll focus on querying a GraphQL API using React and Next.js. We'll use the `fetch` API to send a GraphQL query to the API endpoint and display the fetched data in a React component.
+
+### Prerequisites
+- Basic understanding of React and Next.js
+- Node.js and npm installed on your machine
+- Access to a GraphQL API endpoint (replace `GraphURL` with your actual GraphQL API endpoint)
+
+### Step 1: Set Up the Project
+1. Create a new Next.js project or use an existing one.
+2. Install the necessary packages:
+   ```bash
+   npm install react
+   ```
+3. Create a `utils` folder and a `auctions.js` file inside it to store your GraphQL API URL:
+   ```javascript
+   // utils/auctions.js
+   export const GraphURL = "YOUR_GRAPHQL_API_ENDPOINT";
+   ```
+
+### Step 2: Write the Query Component
+Create a new React component to handle the GraphQL query:
+
+```javascript
+// components/QueryComponent.js
+import React, { useState, useEffect } from 'react';
+import { GraphURL } from '../utils/auctions';
+
+const QueryComponent = () => {
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      const query = `{
+        auctionCreateds {
+          auctionId
+          seller
+          stablecoin
+          tokenId
+          tokenContract
+          endTime
+          startTime
+          startPrice
+          blockTimestamp
+          transactionHash
+        }
+      }`;
+
+      const res = await fetch(GraphURL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ query }),
+      }).catch(error => console.error('Error:', error));
+
+      const result = await res.json();
+      setData(result?.data?.auctionCreateds);
+    }
+
+    fetchData();
+  }, []);
+
+  return (
+    <div>
+      {data ? (
+        <ul>
+          {data.map(auction => (
+            <li key={auction.auctionId}>{auction.seller}</li>
+          ))}
+        </ul>
+      ) : (
+        <p>Loading...</p>
+      )}
+    </div>
+  );
+};
+
+export default QueryComponent;
+```
+
+### Step 3: Implement the Query Component
+Use the `QueryComponent` in your main React component or page:
+
+```javascript
+// pages/index.js
+import React from 'react';
+import QueryComponent from '../components/QueryComponent';
+
+const Home = () => {
+  return (
+    <div>
+      <h1>GraphQL Query Example</h1>
+      <QueryComponent />
+    </div>
+  );
+};
+
+export default Home;
+```
+
+### Step 4: GraphQL Query Explanation
+The GraphQL query used in the `QueryComponent` is structured to retrieve specific fields related to auction events from the GraphQL API. Here's a breakdown of the query and what each part does:
+
+```graphql
+{
+  auctionCreateds {
+    auctionId
+    seller
+    stablecoin
+    tokenId
+    tokenContract
+    endTime
+    startTime
+    startPrice
+    blockTimestamp
+    transactionHash
+  }
+}
+```
+
+- **`auctionCreateds`**: This is the name of the GraphQL query field. It represents the entry point for fetching auction-related data. The name `auctionCreateds` is specific to the GraphQL schema of your API and may vary based on the schema design.
+
+- **Selection Set (Fields)**: Within the `auctionCreateds` field, we specify a selection set of fields that we want to retrieve for each auction event. Here's what each field represents:
+
+  - **`auctionId`**: The unique identifier for each auction.
+  - **`seller`**: The seller or owner of the auction.
+  - **`stablecoin`**: The stablecoin used in the auction.
+  - **`tokenId`**: The token ID associated with the auction.
+  - **`tokenContract`**: The contract address of the token.
+  - **`endTime`**: The end time of the auction.
+  - **`startTime`**: The start time of the auction.
+  - **`startPrice`**: The starting price of the auction.
+  - **`blockTimestamp`**: The timestamp of the block when the auction was created.
+  - **`transactionHash`**: The transaction hash associated with the auction creation.
+
+By specifying these fields in the GraphQL query, we instruct the API to return data for each auction event, including all the specified fields. This allows us to fetch detailed information about auction events from the API.
+
+### Query Execution
+
+When the `QueryComponent` is mounted in a React component, the `useEffect` hook triggers the execution of the GraphQL query using the `fetch` API. The query is sent as a POST request to the GraphQL API endpoint (`GraphURL`), with the query string JSON-encoded in the request body.
+
+Upon receiving the JSON response from the API, the response data is parsed, and the relevant auction event data (`auctionCreateds`) is extracted. This data is then set as the component's state (`data`) using the `setData` function, making it available for rendering in the component's UI.
+
+### Conclusion
+
+The GraphQL query structure and execution process in the `QueryComponent` enable dynamic fetching of auction event data from a GraphQL API. By understanding the components of the query and how it interacts with the API, developers can effectively utilize GraphQL for data retrieval in React applications.
+
+
+
+---
+
+Feel free to customize the code or add more features based on your project requirements. If you have any further questions or need clarifications, please let me know!
+
+## Overview Of the example project
 
 Welcome to the Dauctions! This decentralized application (DApp) is designed to provide a seamless and secure platform for conducting online auctions using blockchain technology. Users can create, bid on, and manage auctions for various items or services, all while benefiting from the transparency and immutability of the Ethereum blockchain.
 
